@@ -11,7 +11,7 @@ from pathlib import Path
 from flask import Flask, flash, redirect, render_template, request, url_for
 
 APP_DIR = Path(__file__).resolve().parent
-DB_PATH = APP_DIR / "database.db"
+DB_PATH = Path(os.environ.get("DATABASE_PATH", APP_DIR / "database.db"))
 ALLOWED_STATUSES = ("applied", "interview", "offer", "rejected")
 DATE_PATTERN = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 
@@ -43,6 +43,7 @@ def get_db():
 
 
 def init_db():
+    DB_PATH.parent.mkdir(parents=True, exist_ok=True)
     conn = get_db()
     conn.execute(
         """
