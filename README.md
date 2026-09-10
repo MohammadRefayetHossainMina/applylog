@@ -2,6 +2,13 @@
 
 A single-user job application tracker.
 
+- **Project page (GitHub Pages):** https://mohammadrefayethossainmina.github.io/applylog/
+- **Live demo (Render):** https://applylog.onrender.com
+
+> Free Render instances sleep when idle and may take a minute to wake. SQLite data on
+> the free tier can reset when the service restarts or redeploys — fine for a portfolio
+> demo; use local mode for lasting records.
+
 ## The Problem
 
 Job applications scatter across emails, browser tabs, and memory. It is easy to forget which company you applied to, when you applied, and whether the process moved to interview, offer, or rejection.
@@ -53,9 +60,18 @@ The useful work happened before `app.py` existed: picking one problem, writing n
 ## How to run
 
 ```bash
-cd big_project_one
 python -m pip install -r requirements.txt
 python app.py
 ```
 
 Open http://127.0.0.1:3000
+
+## Deploy (Render)
+
+The repo includes `render.yaml`, a `Procfile`, and `gunicorn` in `requirements.txt`.
+
+1. Open [Deploy to Render](https://render.com/deploy?repo=https://github.com/MohammadRefayetHossainMina/applylog), or in the Render dashboard choose **New → Blueprint** and connect this repository.
+2. Apply the Blueprint (free web service named `applylog`).
+3. After the build finishes, open `https://applylog.onrender.com` (or the URL Render shows).
+
+Production start command: `gunicorn --bind 0.0.0.0:$PORT app:app`

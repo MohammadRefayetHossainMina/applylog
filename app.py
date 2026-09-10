@@ -1,4 +1,5 @@
 import json
+import os
 import re
 import sqlite3
 import time
@@ -28,7 +29,7 @@ HTML_TAG_RE = re.compile(r"<[^>]+>")
 BULLET_PREFIX_RE = re.compile(r"^[\s]*([•*\-–—]|\d+[.)])\s+")
 
 app = Flask(__name__)
-app.secret_key = "applylog-local-single-user"
+app.secret_key = os.environ.get("SECRET_KEY", "applylog-local-single-user")
 
 
 class CompanyInfoFetchError(Exception):
@@ -706,4 +707,5 @@ def delete_application(application_id):
 init_db()
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=3000, debug=False)
+    port = int(os.environ.get("PORT", "3000"))
+    app.run(host="0.0.0.0", port=port, debug=False)

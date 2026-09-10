@@ -23,12 +23,9 @@
         <nav class="nav" aria-label="Primary">
           <a href="#features">Features</a>
           <a href="#stack">Stack</a>
+          <a href="#demo">Live demo</a>
           <a href="#run">Run locally</a>
-          <a
-            class="btn-sm"
-            href="https://github.com/MohammadRefayetHossainMina/applylog"
-            >GitHub</a
-          >
+          <a class="btn-sm" href="https://applylog.onrender.com">Open app</a>
         </nav>
       </div>
     </header>
@@ -45,10 +42,16 @@
           <div class="cta-row">
             <a
               class="btn btn-primary"
-              href="https://github.com/MohammadRefayetHossainMina/applylog"
-              >View on GitHub</a
+              id="live-demo-btn"
+              href="https://applylog.onrender.com"
+              >Open live demo</a
             >
             <a class="btn btn-ghost" href="#run">Run it locally</a>
+            <a
+              class="btn btn-ghost"
+              href="https://github.com/MohammadRefayetHossainMina/applylog"
+              >GitHub</a
+            >
           </div>
         </div>
       </div>
@@ -59,8 +62,9 @@
         <p class="section-label">Why it exists</p>
         <h2>Applications scatter. Follow-ups get lost.</h2>
         <p class="lede">
-          ApplyLog is a small local web app for a single job seeker. It is not hosted as
-          a live service on this page — clone the repo and run Flask on your machine.
+          ApplyLog is a Flask + SQLite tracker for a single job seeker. Try the
+          <a href="https://applylog.onrender.com">live demo</a> (free-tier host may
+          take a minute to wake), or run it locally from the repo.
         </p>
         <div class="problem-solution" style="margin-top: 2rem">
           <article class="panel">
@@ -160,8 +164,36 @@
           <span class="tech-chip">Wikipedia summary (optional)</span>
         </div>
         <p class="note">
-          GitHub Pages hosts this project page only. The live tracker runs on
-          <code>localhost:3000</code> after you start <code>app.py</code>.
+          This GitHub Pages site is the brochure. The interactive app is deployed as a
+          Render web service (see <a href="#demo">Live demo</a>). Locally it still runs
+          on <code>localhost:3000</code> via <code>python app.py</code>.
+        </p>
+      </div>
+    </section>
+
+    <section id="demo">
+      <div class="wrap">
+        <p class="section-label">Online</p>
+        <h2>Live demo</h2>
+        <p class="lede">
+          The Flask app is hosted on Render’s free tier so you can add, list, edit, and
+          delete applications in the browser. SQLite lives on the instance disk — free
+          deploys can wipe data on restart, which is fine for a portfolio demo.
+        </p>
+        <div class="cta-row" style="margin-top: 1.5rem">
+          <a class="btn btn-primary" href="https://applylog.onrender.com"
+            >Open live demo</a
+          >
+          <a
+            class="btn btn-ghost"
+            href="https://render.com/deploy?repo=https://github.com/MohammadRefayetHossainMina/applylog"
+            >Deploy on Render</a
+          >
+        </div>
+        <p class="note">
+          First visit after idle may spin up slowly. If the demo URL is unreachable,
+          use <strong>Deploy on Render</strong> (Blueprint reads <code>render.yaml</code>)
+          or run locally below.
         </p>
       </div>
     </section>
@@ -210,10 +242,13 @@
     <section class="cta-band">
       <div class="wrap">
         <h2>Ready to track applications?</h2>
-        <p>Grab the source, run it locally, and keep every application in one list.</p>
+        <p>Open the live demo, or clone the repo and run Flask on your machine.</p>
         <div class="cta-row">
+          <a class="btn btn-primary" href="https://applylog.onrender.com"
+            >Open live demo</a
+          >
           <a
-            class="btn btn-primary"
+            class="btn btn-ghost"
             href="https://github.com/MohammadRefayetHossainMina/applylog"
             >Open the GitHub repo</a
           >
