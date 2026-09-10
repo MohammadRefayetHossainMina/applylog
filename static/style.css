@@ -436,129 +436,6 @@ button.secondary {
   border: 1px solid var(--line);
 }
 
-button.info-btn {
-  display: inline-block;
-  width: auto;
-  margin: 0 0.45rem 0 0;
-  padding: 0.35rem 0.65rem;
-  background: transparent;
-  color: var(--ink);
-  border: 1px solid var(--line);
-  font-size: var(--text-control);
-  font-weight: 600;
-  vertical-align: middle;
-}
-
-button.info-btn:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-}
-
-.hiring-notes-block {
-  margin: 0 0 1.25rem;
-  padding-bottom: 1.1rem;
-  border-bottom: 1px solid var(--line);
-}
-
-.hiring-notes-block h2 {
-  margin-bottom: 0.55rem;
-}
-
-.hiring-notes-preview,
-.modal-body {
-  margin: 0;
-  max-width: var(--measure);
-  padding: 0;
-  border: 0;
-  background: transparent;
-  font-family: var(--font-ui);
-  font-size: var(--text-body);
-  font-weight: 400;
-  line-height: var(--leading-body);
-  color: var(--ink);
-  text-align: left;
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-}
-
-body.modal-open {
-  overflow: hidden;
-}
-
-.modal {
-  position: fixed;
-  inset: 0;
-  z-index: 100;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-}
-
-.modal[hidden] {
-  display: none;
-}
-
-.modal-backdrop {
-  position: absolute;
-  inset: 0;
-  background: rgba(28, 43, 58, 0.45);
-}
-
-.modal-panel {
-  position: relative;
-  z-index: 1;
-  width: min(32rem, 100%);
-  max-height: min(80vh, 36rem);
-  overflow: auto;
-  background: rgba(255, 252, 247, 0.96);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  padding: 1.1rem 1.2rem 1.25rem;
-  box-shadow: 0 16px 40px rgba(28, 43, 58, 0.2);
-  text-align: left;
-}
-
-.modal-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 0.75rem;
-  margin-bottom: 0.35rem;
-}
-
-.modal-header h2 {
-  margin: 0;
-  font-size: var(--text-h3);
-}
-
-.modal-close {
-  width: auto;
-  margin: 0;
-  padding: 0.15rem 0.55rem;
-  background: transparent;
-  color: var(--muted);
-  border: 1px solid transparent;
-  font-size: 1.35rem;
-  line-height: 1.2;
-  font-weight: 500;
-}
-
-.modal-close:hover,
-.modal-close:focus-visible {
-  color: var(--ink);
-  border-color: var(--line);
-}
-
-.modal-meta {
-  margin: 0 0 0.85rem;
-  font-size: var(--text-caption);
-  color: var(--muted);
-  line-height: 1.4;
-}
-
 a {
   color: #8a3b12;
 }
@@ -587,8 +464,7 @@ a {
   textarea,
   button,
   button.danger,
-  button.secondary,
-  button.info-btn {
+  button.secondary {
     font-size: 1rem;
   }
 }

@@ -24,9 +24,6 @@ FETCH_DEADLINE_SEC = 7.0
 SUMMARY_MAX_CHARS = 700
 NOT_FOUND_MESSAGE = "No public summary found."
 SNIPPET_MAX_CHARS = 140
-HIRING_FALLBACK_MAX_CHARS = 1100
-HTML_TAG_RE = re.compile(r"<[^>]+>")
-BULLET_PREFIX_RE = re.compile(r"^[\s]*([•*\-–—]|\d+[.)])\s+")
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "applylog-local-single-user")
@@ -54,9 +51,7 @@ def init_db():
             date_applied TEXT NOT NULL,
             status TEXT NOT NULL,
             notes TEXT,
-            company_info TEXT,
-            hiring_notes TEXT,
-            posting_paste TEXT
+            company_info TEXT
         )
         """
     )
@@ -65,10 +60,6 @@ def init_db():
     }
     if "company_info" not in columns:
         conn.execute("ALTER TABLE applications ADD COLUMN company_info TEXT")
-    if "hiring_notes" not in columns:
-        conn.execute("ALTER TABLE applications ADD COLUMN hiring_notes TEXT")
-    if "posting_paste" not in columns:
-        conn.execute("ALTER TABLE applications ADD COLUMN posting_paste TEXT")
     conn.commit()
     conn.close()
 
@@ -78,8 +69,7 @@ def fetch_applications():
     try:
         return conn.execute(
             """
-            SELECT id, company, role, date_applied, status, notes, company_info,
-                   hiring_notes, posting_paste
+            SELECT id, company, role, date_applied, status, notes, company_info
             FROM applications
             ORDER BY date_applied DESC, id DESC
             """
@@ -93,8 +83,7 @@ def fetch_application(application_id):
     try:
         return conn.execute(
             """
-            SELECT id, company, role, date_applied, status, notes, company_info,
-                   hiring_notes, posting_paste
+            SELECT id, company, role, date_applied, status, notes, company_info
             FROM applications
             WHERE id = ?
             """,
@@ -102,289 +91,6 @@ def fetch_application(application_id):
         ).fetchone()
     finally:
         conn.close()
-
-
-def _strip_html(text):
-    text = HTML_TAG_RE.sub(" ", text or "")
-    text = text.replace("&nbsp;", " ").replace("&amp;", "&")
-    text = text.replace("&lt;", "<").replace("&gt;", ">").replace("&quot;", '"')
-    return text
-
-
-def _clean_line(line):
-    line = BULLET_PREFIX_RE.sub("", (line or "").strip())
-    return " ".join(line.split())
-
-
-def _line_matches(line, patterns):
-    lower = line.casefold()
-    return any(p.search(lower) for p in patterns)
-
-
-def _is_section_header(line):
-    compact = line.rstrip(":").strip()
-    return len(compact) <= 48 and compact.casefold() in {
-        "requirements",
-        "requirement",
-        "qualifications",
-        "qualification",
-        "responsibilities",
-        "responsibility",
-        "duties",
-        "benefits",
-        "perks",
-        "what you'll do",
-        "what you will do",
-        "about the role",
-        "the role",
-        "job description",
-        "location",
-        "compensation",
-        "salary",
-        "employment type",
-    }
-
-
-SECTION_STOP = re.compile(
-    r"^(requirements?|qualifications?|responsibilit(y|ies)|duties|benefits?|"
-    r"perks?|compensation|salary|location|about (the )?(role|us|company)|"
-    r"what you.?ll do|employment type|how to apply|equal opportunity)\b",
-    re.I,
-)
-
-
-def _collect_section_lines(raw_lines, start_idx, used, limit):
-    """Take following lines after a section header until the next section."""
-    collected = []
-    for j in range(start_idx + 1, len(raw_lines)):
-        if j in used:
-            continue
-        nxt = raw_lines[j]
-        if _is_section_header(nxt) or SECTION_STOP.match(nxt):
-            break
-        if re.search(
-            r"\b(deadline|apply by|applications? close|visa|sponsorship|"
-            r"equal opportunity)\b",
-            nxt,
-            re.I,
-        ):
-            break
-        if len(nxt) < 3:
-            continue
-        collected.append(nxt)
-        used.add(j)
-        if len(collected) >= limit:
-            break
-    return collected
-
-
-def _shorten(line, limit=220):
-    if len(line) <= limit:
-        return line
-    return line[: limit - 1].rstrip() + "…"
-
-
-def _looks_like_header_only(line, label):
-    compact = line.rstrip(":").strip()
-    if _is_section_header(line):
-        return True
-    return compact.casefold() == label.casefold()
-
-
-def extract_hiring_notes(paste):
-    """Heuristic extract of important hiring-page info. Returns None if empty."""
-    paste = _strip_html(paste or "").strip()
-    if not paste:
-        return None
-
-    raw_lines = []
-    for line in paste.replace("\r\n", "\n").replace("\r", "\n").split("\n"):
-        cleaned = _clean_line(line)
-        if cleaned and len(cleaned) > 1:
-            raw_lines.append(cleaned)
-
-    if not raw_lines:
-        return None
-
-    categories = [
-        (
-            "Role / title",
-            [
-                re.compile(r"\b(job title|position title|role title)\b"),
-                re.compile(r"\b(we are hiring|now hiring|opening for)\b"),
-            ],
-            2,
-            False,
-        ),
-        (
-            "Location / remote",
-            [
-                re.compile(r"\b(location|based in|headquarters|office)\b"),
-                re.compile(r"\b(remote|hybrid|on[- ]?site|work from home|wfh)\b"),
-            ],
-            3,
-            False,
-        ),
-        (
-            "Employment type",
-            [
-                re.compile(
-                    r"\b(full[- ]?time|part[- ]?time|contract|temporary|"
-                    r"internship|permanent|freelance|employment type)\b"
-                ),
-            ],
-            2,
-            False,
-        ),
-        (
-            "Salary / compensation",
-            [
-                re.compile(
-                    r"\b(salary|compensation|pay|wage|stipend|equity|"
-                    r"base pay|total cash|otc)\b"
-                ),
-                re.compile(r"[\$£€]\s?\d"),
-                re.compile(r"\b\d{2,3}[,.]?\d{3}\s*[-–—to]+\s*[\$£€]?\s?\d"),
-            ],
-            3,
-            False,
-        ),
-        (
-            "Requirements",
-            [
-                re.compile(
-                    r"\b(requirements?|qualifications?|must have|you (have|bring)|"
-                    r"minimum qualifications?)\b"
-                ),
-            ],
-            5,
-            True,
-        ),
-        (
-            "Responsibilities",
-            [
-                re.compile(
-                    r"\b(responsibilit(y|ies)|what you.?ll do|you will|"
-                    r"day[- ]to[- ]day|duties|about the role)\b"
-                ),
-            ],
-            4,
-            True,
-        ),
-        (
-            "Benefits",
-            [
-                re.compile(
-                    r"\b(benefits?|perks?|pto|paid time off|health insurance|"
-                    r"401\(?k\)?|wellness|vacation)\b"
-                ),
-            ],
-            4,
-            True,
-        ),
-        (
-            "Deadline",
-            [
-                re.compile(
-                    r"\b(deadline|apply by|applications? close|closing date|"
-                    r"last day to apply)\b"
-                ),
-            ],
-            2,
-            False,
-        ),
-    ]
-
-    used = set()
-    bullets = []
-
-    first = raw_lines[0]
-    if len(first) <= 90 and re.search(
-        r"\b(engineer|developer|analyst|manager|designer|scientist|"
-        r"specialist|coordinator|director|intern|associate)\b",
-        first,
-        re.I,
-    ):
-        bullets.append(f"- Role / title: {first}")
-        used.add(0)
-
-    for label, patterns, limit, grab_following in categories:
-        if label == "Role / title" and any(
-            b.startswith("- Role / title:") for b in bullets
-        ):
-            continue
-        hits = []
-        for idx, line in enumerate(raw_lines):
-            if idx in used:
-                continue
-            if not _line_matches(line, patterns):
-                continue
-            header_only = _looks_like_header_only(line, label)
-            if header_only and grab_following:
-                used.add(idx)
-                hits.extend(_collect_section_lines(raw_lines, idx, used, limit))
-            else:
-                hits.append(line)
-                used.add(idx)
-                # Only pull siblings when the match was a bare section title.
-                if grab_following and header_only:
-                    hits.extend(
-                        _collect_section_lines(
-                            raw_lines, idx, used, max(0, limit - len(hits))
-                        )
-                    )
-            if len(hits) >= limit:
-                hits = hits[:limit]
-                break
-        if not hits:
-            continue
-        if len(hits) == 1 and len(hits[0]) < 140:
-            bullets.append(f"- {label}: {hits[0]}")
-        else:
-            bullets.append(f"- {label}:")
-            for hit in hits:
-                bullets.append(f"  - {_shorten(hit)}")
-
-    if not bullets:
-        skip = re.compile(
-            r"^(home|careers|jobs|menu|skip to|cookie|privacy|sign in|"
-            r"log in|share|apply now)$",
-            re.I,
-        )
-        meaningful = [
-            line
-            for line in raw_lines
-            if len(line) >= 25 and not skip.fullmatch(line)
-        ]
-        if not meaningful:
-            meaningful = raw_lines
-        text = "\n".join(f"- {line}" for line in meaningful)
-        if len(text) > HIRING_FALLBACK_MAX_CHARS:
-            text = text[:HIRING_FALLBACK_MAX_CHARS].rsplit("\n", 1)[0]
-            if not text.endswith("…"):
-                text = text.rstrip() + "…"
-        return text or None
-
-    other = []
-    notable = re.compile(
-        r"\b(visa|sponsorship|clearance|security|travel|relocation|"
-        r"equal opportunity|eoe|diversity)\b",
-        re.I,
-    )
-    for idx, line in enumerate(raw_lines):
-        if idx in used:
-            continue
-        if notable.search(line):
-            other.append(line)
-            used.add(idx)
-            if len(other) >= 3:
-                break
-    if other:
-        bullets.append("- Other notes:")
-        for line in other:
-            bullets.append(f"  - {_shorten(line)}")
-
-    return "\n".join(bullets)
 
 
 def parse_application_form(form):
@@ -533,7 +239,6 @@ def index():
             "date_applied": "",
             "status": "applied",
             "notes": "",
-            "posting_paste": "",
         },
         statuses=ALLOWED_STATUSES,
     )
@@ -542,8 +247,6 @@ def index():
 @app.route("/add", methods=["POST"])
 def add_application():
     values, errors = parse_application_form(request.form)
-    posting_paste = (request.form.get("posting_paste") or "").strip()
-    values["posting_paste"] = posting_paste
     if errors:
         return (
             render_template(
@@ -556,16 +259,13 @@ def add_application():
             400,
         )
     company_info, fetch_failed = lookup_company_info(values["company"])
-    hiring_notes = extract_hiring_notes(posting_paste)
-    stored_paste = posting_paste or None
     conn = get_db()
     try:
         conn.execute(
             """
             INSERT INTO applications
-                (company, role, date_applied, status, notes, company_info,
-                 hiring_notes, posting_paste)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                (company, role, date_applied, status, notes, company_info)
+            VALUES (?, ?, ?, ?, ?, ?)
             """,
             (
                 values["company"],
@@ -574,8 +274,6 @@ def add_application():
                 values["status"],
                 values["notes"],
                 company_info,
-                hiring_notes,
-                stored_paste,
             ),
         )
         conn.commit()
@@ -603,7 +301,6 @@ def edit_application(application_id):
             "status": application["status"],
             "notes": application["notes"] or "",
             "company_info": application["company_info"] or "",
-            "posting_paste": application["posting_paste"] or "",
         },
         statuses=ALLOWED_STATUSES,
     )
@@ -617,9 +314,6 @@ def update_application(application_id):
     status = (request.form.get("status") or "").strip()
     notes = (request.form.get("notes") or "").strip()
     company_info = (request.form.get("company_info") or "").strip()
-    posting_paste = (request.form.get("posting_paste") or "").strip()
-    hiring_notes = extract_hiring_notes(posting_paste)
-    stored_paste = posting_paste or None
     if status not in ALLOWED_STATUSES:
         return (
             render_template(
@@ -630,7 +324,6 @@ def update_application(application_id):
                     "status": status,
                     "notes": notes,
                     "company_info": company_info,
-                    "posting_paste": posting_paste,
                 },
                 statuses=ALLOWED_STATUSES,
             ),
@@ -641,16 +334,13 @@ def update_application(application_id):
         conn.execute(
             """
             UPDATE applications
-            SET status = ?, notes = ?, company_info = ?,
-                hiring_notes = ?, posting_paste = ?
+            SET status = ?, notes = ?, company_info = ?
             WHERE id = ?
             """,
             (
                 status,
                 notes,
                 company_info,
-                hiring_notes,
-                stored_paste,
                 application_id,
             ),
         )
