@@ -6,7 +6,7 @@ A single-user job application tracker.
 
 That GitHub Pages site *is* ApplyLog — a static page. Add applications in the browser; they are stored in **localStorage** (GitHub Pages cannot run Flask or SQLite).
 
-The Flask app (`python app.py`) is the course / local SQLite version on `http://127.0.0.1:3000`. Same add / list / edit / delete loop, with records in `database.db`.
+The Flask app (`python app.py`) is the course / local SQLite version on `http://127.0.0.1:3000`. Same add / list / edit / delete loop, with records in `database.db`. On first run, if `database.db` is missing, Flask copies committed `demo.db` so you see sample applications; your personal database stays local and is not committed.
 
 ## The Problem
 

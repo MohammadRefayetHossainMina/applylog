@@ -4,6 +4,48 @@
   var DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
   var WIKI_SUMMARY =
     "https://en.wikipedia.org/api/rest_v1/page/summary/";
+  var DEMO_APPS = [
+    {
+      id: 1,
+      company: "SEEK",
+      role: "Senior Software Engineer",
+      date_applied: "2026-08-20",
+      status: "interview",
+      notes: "",
+      company_info:
+        "SEEK Limited is an Australian online employment marketplace that connects job seekers with employers.",
+    },
+    {
+      id: 2,
+      company: "Qantas",
+      role: "Back-End Developer",
+      date_applied: "2026-09-04",
+      status: "applied",
+      notes: "",
+      company_info:
+        "Qantas Airways Limited is the flag carrier of Australia and the country's largest airline.",
+    },
+    {
+      id: 3,
+      company: "Atlassian",
+      role: "Senior Principal Software Engineer",
+      date_applied: "2026-09-09",
+      status: "applied",
+      notes: "",
+      company_info:
+        "Atlassian Corporation is an Australian software company known for collaboration tools such as Jira and Confluence.",
+    },
+    {
+      id: 4,
+      company: "Dematic",
+      role: "Software Developer",
+      date_applied: "2026-08-12",
+      status: "rejected",
+      notes: "",
+      company_info:
+        "Dematic is a supplier of automated material-handling systems and software for warehouses and distribution centres.",
+    },
+  ];
 
   var addForm = document.getElementById("add-form");
   var editForm = document.getElementById("edit-form");
@@ -29,10 +71,14 @@
   function loadApps() {
     try {
       var raw = localStorage.getItem(STORAGE_KEY);
-      var parsed = raw ? JSON.parse(raw) : [];
-      return Array.isArray(parsed) ? parsed : [];
+      if (raw === null) {
+        saveApps(DEMO_APPS);
+        return DEMO_APPS.slice();
+      }
+      var parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed : DEMO_APPS.slice();
     } catch (err) {
-      return [];
+      return DEMO_APPS.slice();
     }
   }
 

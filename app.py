@@ -1,6 +1,7 @@
 import json
 import os
 import re
+import shutil
 import sqlite3
 import time
 import urllib.error
@@ -12,6 +13,7 @@ from flask import Flask, flash, redirect, render_template, request, url_for
 
 APP_DIR = Path(__file__).resolve().parent
 DB_PATH = Path(os.environ.get("DATABASE_PATH", APP_DIR / "database.db"))
+DEMO_DB_PATH = APP_DIR / "demo.db"
 ALLOWED_STATUSES = ("applied", "interview", "offer", "rejected")
 DATE_PATTERN = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 
@@ -41,6 +43,8 @@ def get_db():
 
 def init_db():
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
+    if not DB_PATH.exists() and DEMO_DB_PATH.is_file():
+        shutil.copy2(DEMO_DB_PATH, DB_PATH)
     conn = get_db()
     conn.execute(
         """
