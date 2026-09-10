@@ -2,14 +2,11 @@
 
 A single-user job application tracker.
 
-- **Project page (GitHub Pages):** https://mohammadrefayethossainmina.github.io/applylog/
-- **Live demo (Render):** https://applylog.onrender.com — create it with
-  [Deploy to Render](https://render.com/deploy?repo=https://github.com/MohammadRefayetHossainMina/applylog)
-  if that URL is not live yet.
+**Use the app:** https://mohammadrefayethossainmina.github.io/applylog/
 
-> Free Render instances sleep when idle and may take a minute to wake. SQLite data on
-> the free tier can reset when the service restarts or redeploys — fine for a portfolio
-> demo; use local mode for lasting records.
+That GitHub Pages site *is* ApplyLog — a static page. Add applications in the browser; they are stored in **localStorage** (GitHub Pages cannot run Flask or SQLite).
+
+The Flask app (`python app.py`) is the course / local SQLite version on `http://127.0.0.1:3000`. Same add / list / edit / delete loop, with records in `database.db`.
 
 ## The Problem
 
@@ -17,29 +14,34 @@ Job applications scatter across emails, browser tabs, and memory. It is easy to 
 
 ## The Solution
 
-ApplyLog is a small Flask + SQLite web app. You log each application once (company, role, date, status, optional notes), see the full list newest-first, update status as the process changes, and delete a mistaken row. On add (and on refresh from the edit page), it stores a short public company summary from Wikipedia so you can read it before interviews. Records are stored on disk, so they survive a server restart.
+Log each application once (company, role, date, status, optional notes), see the full list newest-first, update status and notes as the process changes, and delete a mistaken row. On the Pages app, a short public Wikipedia summary may be stored with the row for a hover tooltip (skipped if the request fails). The Flask version does the same lookup server-side and keeps rows in SQLite so they survive a process restart.
 
 ## Main Features
 
 - Add an application with company, role, date applied, status, and optional notes
-- Optionally paste hiring-page text; store an extracted posting summary
 - View all applications, newest date applied first
-- Open hiring info from an Info button on each row
-- Store a short public company summary (Wikipedia) on the row
-- Update status, notes, company info, and hiring paste on an existing row
+- Optional company summary on hover (Wikipedia)
+- Update status and notes on an existing row
 - Delete a duplicate or mistaken row (with a confirm step)
 
 ## Tech Stack & Architecture
 
-- **Frontend:** vanilla HTML and CSS (plus a confirm dialog for delete)
-- **Backend:** Python and Flask in `app.py` (`0.0.0.0:3000`)
-- **Database:** SQLite file `database.db`
+**GitHub Pages (the public app)**
 
-The browser posts a form to Flask. Flask validates the input, runs a parameterized SQL statement, then renders the updated list from SQLite. There is no login layer and no ORM.
+- Vanilla HTML, CSS, and JavaScript in `docs/`
+- Persistence: `localStorage` in the visitor’s browser
+
+**Local / course version**
+
+- Frontend: vanilla HTML and CSS (plus a confirm dialog for delete)
+- Backend: Python and Flask in `app.py` (`0.0.0.0:3000`)
+- Database: SQLite file `database.db`
+
+There is no login layer and no ORM.
 
 ## Database Design
 
-One table, `applications`:
+The Flask version uses one table, `applications`:
 
 | Column | Type | Meaning |
 | --- | --- | --- |
@@ -50,16 +52,14 @@ One table, `applications`:
 | `status` | TEXT NOT NULL | `applied`, `interview`, `offer`, or `rejected` |
 | `notes` | TEXT | Optional notes |
 | `company_info` | TEXT | Optional public company summary |
-| `hiring_notes` | TEXT | Optional extracted job-posting summary |
-| `posting_paste` | TEXT | Optional raw pasted hiring-page text |
 
-This answers: what did I apply to and when, what is the status of application *N*, what does that company do, and which row should be updated or deleted.
+The Pages app stores the same fields as JSON in `localStorage`.
 
 ## What I Learned
 
-The useful work happened before `app.py` existed: picking one problem, writing non-goals, and turning each roadmap item into requirements, a plan, and pass/fail checks. A page that still shows a row after submit is not enough — persistence only counts if SQLite still has the row after the process is gone. Keeping auth, job-board APIs, and export out of scope is what made a complete add/list/update/delete loop possible.
+The useful work happened before `app.py` existed: picking one problem, writing non-goals, and turning each roadmap item into requirements, a plan, and pass/fail checks. A page that still shows a row after submit is not enough — persistence only counts if the data is still there after a reload (localStorage on Pages, SQLite after stopping Flask locally). Keeping auth, job-board APIs, and export out of scope is what made a complete add/list/update/delete loop possible.
 
-## How to run
+## How to run locally (Flask + SQLite)
 
 ```bash
 python -m pip install -r requirements.txt
@@ -67,13 +67,3 @@ python app.py
 ```
 
 Open http://127.0.0.1:3000
-
-## Deploy (Render)
-
-The repo includes `render.yaml`, a `Procfile`, and `gunicorn` in `requirements.txt`.
-
-1. Open [Deploy to Render](https://render.com/deploy?repo=https://github.com/MohammadRefayetHossainMina/applylog), or in the Render dashboard choose **New → Blueprint** and connect this repository.
-2. Apply the Blueprint (free web service named `applylog`).
-3. After the build finishes, open `https://applylog.onrender.com` (or the URL Render shows).
-
-Production start command: `gunicorn --bind 0.0.0.0:$PORT app:app`
