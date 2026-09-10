@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ApplyLog — Job application tracker</title>
+    <meta
+      name="description"
+      content="ApplyLog is a single-user Flask + SQLite job application tracker. Log companies, roles, status, and notes in one place."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="wrap">
+        <a class="brand" href="#top">ApplyLog</a>
+        <nav class="nav" aria-label="Primary">
+          <a href="#features">Features</a>
+          <a href="#stack">Stack</a>
+          <a href="#run">Run locally</a>
+          <a
+            class="btn-sm"
+            href="https://github.com/MohammadRefayetHossainMina/applylog"
+            >GitHub</a
+          >
+        </nav>
+      </div>
+    </header>
+
+    <section class="hero" id="top">
+      <div class="hero-bg" role="img" aria-label="ApplyLog background illustration"></div>
+      <div class="hero-scrim" aria-hidden="true"></div>
+      <div class="wrap">
+        <div class="hero-content">
+          <h1>ApplyLog</h1>
+          <p class="tagline">
+            One quiet place to log every job application — and keep status current.
+          </p>
+          <div class="cta-row">
+            <a
+              class="btn btn-primary"
+              href="https://github.com/MohammadRefayetHossainMina/applylog"
+              >View on GitHub</a
+            >
+            <a class="btn btn-ghost" href="#run">Run it locally</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="about">
+      <div class="wrap">
+        <p class="section-label">Why it exists</p>
+        <h2>Applications scatter. Follow-ups get lost.</h2>
+        <p class="lede">
+          ApplyLog is a small local web app for a single job seeker. It is not hosted as
+          a live service on this page — clone the repo and run Flask on your machine.
+        </p>
+        <div class="problem-solution" style="margin-top: 2rem">
+          <article class="panel">
+            <h3>The problem</h3>
+            <p>
+              Job applications live in emails, browser tabs, and memory. It is easy to
+              forget which company you applied to, when you applied, and whether the
+              process moved to interview, offer, or rejection.
+            </p>
+          </article>
+          <article class="panel">
+            <h3>The solution</h3>
+            <p>
+              Log each application once (company, role, date, status, optional notes),
+              see the full list newest-first, update as the process changes, and delete
+              a mistaken row. Data lives in SQLite on disk, so it survives a restart.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="features">
+      <div class="wrap">
+        <p class="section-label">Capabilities</p>
+        <h2>What you can do</h2>
+        <p class="lede">
+          A focused add / list / update / delete loop — plus company context and hiring
+          notes when you need them before an interview.
+        </p>
+        <ul class="feature-list">
+          <li>
+            <span class="feature-mark" aria-hidden="true">1</span>
+            <div>
+              <strong>Add applications</strong>
+              <span>Company, role, date applied, status, and optional notes.</span>
+            </div>
+          </li>
+          <li>
+            <span class="feature-mark" aria-hidden="true">2</span>
+            <div>
+              <strong>List, newest first</strong>
+              <span>See every saved row ordered by date applied descending.</span>
+            </div>
+          </li>
+          <li>
+            <span class="feature-mark" aria-hidden="true">3</span>
+            <div>
+              <strong>Update &amp; delete</strong>
+              <span>Change status and notes; remove duplicates with a confirm step.</span>
+            </div>
+          </li>
+          <li>
+            <span class="feature-mark" aria-hidden="true">4</span>
+            <div>
+              <strong>Company info on hover</strong>
+              <span
+                >A short public Wikipedia summary is stored with the row so you can
+                skim what the company does.</span
+              >
+            </div>
+          </li>
+          <li>
+            <span class="feature-mark" aria-hidden="true">5</span>
+            <div>
+              <strong>Hiring paste · Info modal</strong>
+              <span
+                >Paste hiring-page text when you add or edit; open an Info modal on each
+                row to read the extracted posting summary.</span
+              >
+            </div>
+          </li>
+          <li>
+            <span class="feature-mark" aria-hidden="true">6</span>
+            <div>
+              <strong>Local &amp; durable</strong>
+              <span>Single-user Flask + SQLite — no accounts, no cloud required.</span>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="stack">
+      <div class="wrap">
+        <p class="section-label">Built with</p>
+        <h2>Tech stack</h2>
+        <p class="lede">
+          Deliberately small: vanilla HTML/CSS/JS in the browser, Flask on the server,
+          one SQLite table.
+        </p>
+        <div class="tech-grid">
+          <span class="tech-chip">Python</span>
+          <span class="tech-chip">Flask</span>
+          <span class="tech-chip">SQLite</span>
+          <span class="tech-chip">HTML / CSS / JS</span>
+          <span class="tech-chip">Wikipedia summary (optional)</span>
+        </div>
+        <p class="note">
+          GitHub Pages hosts this project page only. The live tracker runs on
+          <code>localhost:3000</code> after you start <code>app.py</code>.
+        </p>
+      </div>
+    </section>
+
+    <section class="run" id="run">
+      <div class="wrap">
+        <div>
+          <p class="section-label">Get started</p>
+          <h2>Run ApplyLog locally</h2>
+          <p class="lede">
+            Requires Python 3. Clone the repository, install dependencies, and start the
+            server.
+          </p>
+          <ol class="steps">
+            <li>
+              Clone
+              <a href="https://github.com/MohammadRefayetHossainMina/applylog"
+                >the repository</a
+              >
+              and open the project folder.
+            </li>
+            <li>
+              Install packages:
+              <code>pip install -r requirements.txt</code>
+            </li>
+            <li>Start the app: <code>python app.py</code></li>
+            <li>
+              Open
+              <a href="http://127.0.0.1:3000">http://127.0.0.1:3000</a>
+              in your browser.
+            </li>
+          </ol>
+        </div>
+        <div class="terminal" aria-label="Terminal commands">
+          <div class="terminal-bar" aria-hidden="true">
+            <span></span><span></span><span></span>
+          </div>
+          <pre><span class="prompt">$</span> pip install -r requirements.txt
+<span class="prompt">$</span> python app.py
+<span class="comment"># Serving on http://0.0.0.0:3000</span>
+<span class="prompt">$</span> open http://127.0.0.1:3000</pre>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta-band">
+      <div class="wrap">
+        <h2>Ready to track applications?</h2>
+        <p>Grab the source, run it locally, and keep every application in one list.</p>
+        <div class="cta-row">
+          <a
+            class="btn btn-primary"
+            href="https://github.com/MohammadRefayetHossainMina/applylog"
+            >Open the GitHub repo</a
+          >
+          <a class="btn btn-ghost" href="#run">See run steps</a>
+        </div>
+      </div>
+    </section>
+
+    <footer class="site-footer">
+      <div class="wrap">
+        <span>ApplyLog · single-user job application tracker</span>
+        <a href="https://github.com/MohammadRefayetHossainMina/applylog"
+          >github.com/MohammadRefayetHossainMina/applylog</a
+        >
+      </div>
+    </footer>
+  </body>
+</html>
