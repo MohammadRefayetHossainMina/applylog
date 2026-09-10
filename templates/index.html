@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ApplyLog</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=4" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="wrap">
+        <p class="eyebrow">Single-user tracker</p>
+        <h1>ApplyLog</h1>
+        <p class="tagline">One list for every job application.</p>
+      </div>
+    </header>
+
+    <main class="wrap">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+          <p class="banner {% if category == 'error' %}error{% else %}success{% endif %}" role="status">
+            {{ message }}
+          </p>
+        {% endfor %}
+      {% endwith %}
+
+      {% if error %}
+        <p class="banner error" role="alert">{{ error }}</p>
+      {% endif %}
+
+      <section class="card">
+        <h2>Add application</h2>
+        <form class="stack-form" action="{{ url_for('add_application') }}" method="post">
+          <div class="form-grid">
+            <label>
+              Company
+              <input
+                type="text"
+                name="company"
+                value="{{ form.company }}"
+                placeholder="Acme Corp"
+                required
+              />
+            </label>
+            <label>
+              Role
+              <input
+                type="text"
+                name="role"
+                value="{{ form.role }}"
+                placeholder="Junior analyst"
+                required
+              />
+            </label>
+            <label>
+              Date applied
+              <input type="date" name="date_applied" value="{{ form.date_applied }}" required />
+            </label>
+            <label>
+              Status
+              <select name="status" required>
+                {% for status in statuses %}
+                  <option value="{{ status }}" {% if form.status == status %}selected{% endif %}>
+                    {{ status }}
+                  </option>
+                {% endfor %}
+              </select>
+            </label>
+          </div>
+          <label>
+            Notes (optional)
+            <textarea name="notes" rows="3" placeholder="Referral, recruiter name, or next step">{{ form.notes }}</textarea>
+          </label>
+          <label>
+            Paste hiring page text (optional)
+            <textarea
+              name="posting_paste"
+              rows="5"
+              placeholder="Paste job-ad or careers-page text. ApplyLog will extract key details on save."
+            >{{ form.posting_paste }}</textarea>
+          </label>
+          <button type="submit">Save application</button>
+        </form>
+      </section>
+
+      <section class="card">
+        <h2>Applications</h2>
+        {% if applications %}
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Company</th>
+                  <th>Role</th>
+                  <th>Date applied</th>
+                  <th>Status</th>
+                  <th>Notes</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for app_row in applications %}
+                  <tr>
+                    <td>
+                      {% if app_row["company_info"] %}
+                        <span
+                          class="company-tip"
+                          tabindex="0"
+                          aria-describedby="company-tip-{{ app_row['id'] }}"
+                        >
+                          {{ app_row["company"] }}
+                          <span class="company-tip-bubble" role="tooltip" aria-hidden="true">{{ app_row["company_info"] }}</span>
+                        </span>
+                        <span id="company-tip-{{ app_row['id'] }}" class="visually-hidden">{{ app_row["company_info"] }}</span>
+                      {% else %}
+                        {{ app_row["company"] }}
+                      {% endif %}
+                    </td>
+                    <td>{{ app_row["role"] }}</td>
+                    <td>{{ app_row["date_applied"] }}</td>
+                    <td>
+                      <span class="status status-{{ app_row['status'] }}">{{ app_row["status"] }}</span>
+                    </td>
+                    <td>{{ app_row["notes"] }}</td>
+                    <td class="actions">
+                      <button
+                        type="button"
+                        class="info-btn"
+                        data-company="{{ app_row['company'] }}"
+                        data-role="{{ app_row['role'] }}"
+                        data-notes-id="hiring-notes-{{ app_row['id'] }}"
+                        {% if not app_row['hiring_notes'] %}disabled title="No hiring info pasted yet"{% endif %}
+                      >
+                        Info
+                      </button>
+                      <script type="application/json" id="hiring-notes-{{ app_row['id'] }}">{{ (app_row["hiring_notes"] or "")|tojson }}</script>
+                      <a class="link-btn" href="{{ url_for('edit_application', application_id=app_row['id']) }}">Edit</a>
+                      <form
+                        class="inline-form"
+                        action="{{ url_for('delete_application', application_id=app_row['id']) }}"
+                        method="post"
+                        onsubmit="return confirm('Delete this application?');"
+                      >
+                        <button class="danger" type="submit">Delete</button>
+                      </form>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <p class="empty">No applications yet.</p>
+        {% endif %}
+      </section>
+    </main>
+
+    <div
+      id="hiring-modal"
+      class="modal"
+      hidden
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="hiring-modal-title"
+    >
+      <div class="modal-backdrop" data-modal-close></div>
+      <div class="modal-panel">
+        <div class="modal-header">
+          <h2 id="hiring-modal-title">Hiring info</h2>
+          <button type="button" class="modal-close" data-modal-close aria-label="Close">×</button>
+        </div>
+        <p class="modal-meta" id="hiring-modal-meta"></p>
+        <pre class="modal-body" id="hiring-modal-body"></pre>
+      </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='app.js') }}?v=1"></script>
+  </body>
+</html>

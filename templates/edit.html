@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Edit application — ApplyLog</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=4" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="wrap">
+        <p class="eyebrow">ApplyLog</p>
+        <h1>Edit application</h1>
+        <p class="tagline">Update status, notes, company info, and hiring-page details. Company, role, and date stay as logged.</p>
+      </div>
+    </header>
+
+    <main class="wrap">
+      <p><a href="{{ url_for('index') }}">Back to list</a></p>
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+          <p class="banner {% if category == 'error' %}error{% else %}success{% endif %}" role="status">
+            {{ message }}
+          </p>
+        {% endfor %}
+      {% endwith %}
+
+      {% if error %}
+        <p class="banner error" role="alert">{{ error }}</p>
+      {% endif %}
+
+      <section class="card">
+        <dl class="meta">
+          <div>
+            <dt>Company</dt>
+            <dd>{{ application["company"] }}</dd>
+          </div>
+          <div>
+            <dt>Role</dt>
+            <dd>{{ application["role"] }}</dd>
+          </div>
+          <div>
+            <dt>Date applied</dt>
+            <dd>{{ application["date_applied"] }}</dd>
+          </div>
+        </dl>
+
+        <div class="company-info">
+          <h2>Company info</h2>
+          {% if application["company_info"] %}
+            <p class="company-info-block">{{ application["company_info"] }}</p>
+          {% else %}
+            <p class="company-info-block muted">No company info stored yet.</p>
+          {% endif %}
+          <form
+            class="inline-form"
+            action="{{ url_for('refresh_company_info', application_id=application['id']) }}"
+            method="post"
+          >
+            <button class="secondary" type="submit">Refresh company info</button>
+          </form>
+        </div>
+
+        <div class="hiring-notes-block">
+          <h2>Hiring info</h2>
+          {% if application["hiring_notes"] %}
+            <pre class="hiring-notes-preview">{{ application["hiring_notes"] }}</pre>
+          {% else %}
+            <p class="company-info-block muted">No hiring info pasted yet.</p>
+          {% endif %}
+        </div>
+
+        <form class="stack-form" action="{{ url_for('update_application', application_id=application['id']) }}" method="post">
+          <label>
+            Status
+            <select name="status" required>
+              {% for status in statuses %}
+                <option value="{{ status }}" {% if form.status == status %}selected{% endif %}>
+                  {{ status }}
+                </option>
+              {% endfor %}
+            </select>
+          </label>
+          <label>
+            Notes (optional)
+            <textarea name="notes" rows="4">{{ form.notes }}</textarea>
+          </label>
+          <label>
+            Company info (optional)
+            <textarea name="company_info" rows="6" class="company-info-edit">{{ form.company_info }}</textarea>
+          </label>
+          <label>
+            Paste hiring page text (optional)
+            <textarea
+              name="posting_paste"
+              rows="6"
+              placeholder="Paste or replace job-ad text. Leave empty and save to clear hiring info."
+            >{{ form.posting_paste }}</textarea>
+          </label>
+          <button type="submit">Save changes</button>
+        </form>
+      </section>
+    </main>
+  </body>
+</html>
