@@ -3,7 +3,9 @@
 A single-user job application tracker.
 
 - **Project page (GitHub Pages):** https://mohammadrefayethossainmina.github.io/applylog/
-- **Live demo (Render):** https://applylog.onrender.com
+- **Live demo (Render):** https://applylog.onrender.com — create it with
+  [Deploy to Render](https://render.com/deploy?repo=https://github.com/MohammadRefayetHossainMina/applylog)
+  if that URL is not live yet.
 
 > Free Render instances sleep when idle and may take a minute to wake. SQLite data on
 > the free tier can reset when the service restarts or redeploys — fine for a portfolio

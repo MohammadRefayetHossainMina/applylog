@@ -25,7 +25,11 @@
           <a href="#stack">Stack</a>
           <a href="#demo">Live demo</a>
           <a href="#run">Run locally</a>
-          <a class="btn-sm" href="https://applylog.onrender.com">Open app</a>
+          <a
+            class="btn-sm"
+            href="https://render.com/deploy?repo=https://github.com/MohammadRefayetHossainMina/applylog"
+            >Deploy</a
+          >
         </nav>
       </div>
     </header>
@@ -42,16 +46,13 @@
           <div class="cta-row">
             <a
               class="btn btn-primary"
-              id="live-demo-btn"
-              href="https://applylog.onrender.com"
-              >Open live demo</a
+              href="https://render.com/deploy?repo=https://github.com/MohammadRefayetHossainMina/applylog"
+              >Deploy live demo on Render</a
+            >
+            <a class="btn btn-ghost" href="https://applylog.onrender.com"
+              >Open demo (after deploy)</a
             >
             <a class="btn btn-ghost" href="#run">Run it locally</a>
-            <a
-              class="btn btn-ghost"
-              href="https://github.com/MohammadRefayetHossainMina/applylog"
-              >GitHub</a
-            >
           </div>
         </div>
       </div>
@@ -62,9 +63,9 @@
         <p class="section-label">Why it exists</p>
         <h2>Applications scatter. Follow-ups get lost.</h2>
         <p class="lede">
-          ApplyLog is a Flask + SQLite tracker for a single job seeker. Try the
-          <a href="https://applylog.onrender.com">live demo</a> (free-tier host may
-          take a minute to wake), or run it locally from the repo.
+          ApplyLog is a Flask + SQLite tracker for a single job seeker. Deploy the live
+          app on Render (free tier), or run it locally from the repo. This GitHub Pages
+          site is the brochure only — Flask cannot run here.
         </p>
         <div class="problem-solution" style="margin-top: 2rem">
           <article class="panel">
@@ -181,19 +182,21 @@
           deploys can wipe data on restart, which is fine for a portfolio demo.
         </p>
         <div class="cta-row" style="margin-top: 1.5rem">
-          <a class="btn btn-primary" href="https://applylog.onrender.com"
-            >Open live demo</a
-          >
           <a
-            class="btn btn-ghost"
+            class="btn btn-primary"
             href="https://render.com/deploy?repo=https://github.com/MohammadRefayetHossainMina/applylog"
             >Deploy on Render</a
           >
+          <a class="btn btn-ghost" href="https://applylog.onrender.com"
+            >Open https://applylog.onrender.com</a
+          >
         </div>
         <p class="note">
-          First visit after idle may spin up slowly. If the demo URL is unreachable,
-          use <strong>Deploy on Render</strong> (Blueprint reads <code>render.yaml</code>)
-          or run locally below.
+          One-click Blueprint uses <code>render.yaml</code> (free web service,
+          gunicorn). After the first deploy succeeds, the app is usually at
+          <a href="https://applylog.onrender.com">https://applylog.onrender.com</a>
+          (or the URL shown in the Render dashboard). First visit after idle may spin up
+          slowly. SQLite data can reset on free-tier restart — fine for a portfolio demo.
         </p>
       </div>
     </section>
@@ -242,10 +245,12 @@
     <section class="cta-band">
       <div class="wrap">
         <h2>Ready to track applications?</h2>
-        <p>Open the live demo, or clone the repo and run Flask on your machine.</p>
+        <p>Deploy the Flask app on Render, or clone the repo and run it locally.</p>
         <div class="cta-row">
-          <a class="btn btn-primary" href="https://applylog.onrender.com"
-            >Open live demo</a
+          <a
+            class="btn btn-primary"
+            href="https://render.com/deploy?repo=https://github.com/MohammadRefayetHossainMina/applylog"
+            >Deploy on Render</a
           >
           <a
             class="btn btn-ghost"
