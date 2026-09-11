@@ -1,5 +1,7 @@
 (function () {
   var STORAGE_KEY = "applylog.applications";
+  var STORAGE_VERSION_KEY = "applylog.storageVersion";
+  var STORAGE_VERSION = "applylog-v2";
   var STATUSES = ["applied", "interview", "offer", "rejected"];
   var DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
   var WIKI_SUMMARY =
@@ -68,22 +70,38 @@
     bannerEl.className = "banner " + (kind || "success");
   }
 
+  function seedDemoApps() {
+    saveApps(DEMO_APPS);
+    return DEMO_APPS.slice();
+  }
+
   function loadApps() {
     try {
+      var storedVersion = localStorage.getItem(STORAGE_VERSION_KEY);
       var raw = localStorage.getItem(STORAGE_KEY);
-      if (raw === null) {
-        saveApps(DEMO_APPS);
-        return DEMO_APPS.slice();
+      var needsSeed = storedVersion !== STORAGE_VERSION;
+      if (raw === null || raw === "") {
+        return seedDemoApps();
       }
       var parsed = JSON.parse(raw);
-      return Array.isArray(parsed) ? parsed : DEMO_APPS.slice();
+      if (!Array.isArray(parsed)) {
+        return seedDemoApps();
+      }
+      if (needsSeed && parsed.length === 0) {
+        return seedDemoApps();
+      }
+      if (needsSeed) {
+        localStorage.setItem(STORAGE_VERSION_KEY, STORAGE_VERSION);
+      }
+      return parsed;
     } catch (err) {
-      return DEMO_APPS.slice();
+      return seedDemoApps();
     }
   }
 
   function saveApps(apps) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(apps));
+    localStorage.setItem(STORAGE_VERSION_KEY, STORAGE_VERSION);
   }
 
   function nextId(apps) {
